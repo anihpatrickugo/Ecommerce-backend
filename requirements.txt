@@ -6,4 +6,5 @@ djangorestframework==3.14.0
 Pillow==9.3.0
 pytz==2022.7
 sqlparse==0.4.3
+StringGenerator==0.4.4
 tzdata==2022.7
