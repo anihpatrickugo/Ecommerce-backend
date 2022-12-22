@@ -17,5 +17,6 @@ class ProductOder(models.Model):
 class Order(models.Model):
     products = models.ManyToManyField(ProductOder)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reference = models.CharField(max_length=12, blank=True, unique=True)
     paid = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now_add=True)
