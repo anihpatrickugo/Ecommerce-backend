@@ -21,6 +21,7 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer):
             'url',
             'image',
             'name',
+            'initial_price',
             'price',
             'description',
             'categories',

@@ -6,7 +6,7 @@ from .models import ProductOder, Order
 
 @admin.register(ProductOder)
 class ProductOrderAdmin(admin.ModelAdmin):
-    list_display = ['product', 'quantity', 'user']
+    list_display = ['product', 'quantity', 'user', 'id']
     list_filter = ['product', 'user']
 
 

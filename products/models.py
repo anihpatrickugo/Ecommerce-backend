@@ -12,12 +12,20 @@ class Categories(models.Model):
 class Products(models.Model):
     image = models.ImageField(upload_to='products')
     name  = models.CharField(max_length=40)
-    price = models.IntegerField()
+    initial_price = models.IntegerField()
     description = models.TextField()
     categories = models.ManyToManyField(Categories)
-    discount = models.DecimalField(decimal_places=2, max_digits=100.00, blank=True, null=True)
+    discount = models.DecimalField(decimal_places=2, max_digits=100, blank=True, null=True)
 
 
     def __str__(self):
         return  self.name
+
+    @property
+    def price(self):
+        if self.discount:
+            discounted = ( self.discount /100) * self.initial_price
+            new_price = self.initial_price - discounted
+            return new_price
+        return  self.initial_price
 

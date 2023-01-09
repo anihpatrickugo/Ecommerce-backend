@@ -10,3 +10,4 @@ urlpatterns = [
     # categories
     path('categories/<int:pk>/', views.CategoryView.as_view(), name='categories-detail')
 ]
+

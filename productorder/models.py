@@ -14,9 +14,13 @@ class ProductOder(models.Model):
     def __str__(self):
         return f"{self.product.name} order"
 
+    @property
+    def price(self):
+        return self.product.price * self.quantity
+
 class Order(models.Model):
     products = models.ManyToManyField(ProductOder)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     reference = models.CharField(max_length=12, blank=True, unique=True)
-    paid = models.BooleanField(default=False)
+    checked = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now_add=True)
