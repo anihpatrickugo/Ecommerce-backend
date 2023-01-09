@@ -6,8 +6,8 @@ from .models import Products, Categories
 
 @admin.register(Products)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'price', 'description']
-    list_filter = ['name', 'price', 'description']
+    list_display = ['name', 'initial_price', 'description']
+    list_filter = ['name', 'initial_price', 'description']
 
 @admin.register(Categories)
 class ProductAdmin(admin.ModelAdmin):
