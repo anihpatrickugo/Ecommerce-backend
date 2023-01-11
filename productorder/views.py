@@ -4,8 +4,10 @@ from rest_framework import mixins
 from rest_framework import status
 from rest_framework.response import  Response
 
-from. models import Order, ProductOder
 from products.models import Products
+
+from. models import Order, ProductOder
+from .permissions import IsOrderOwner
 from .serializers import OrderSerializer, CreateOrderSerializer
 
 # Create your views here.
@@ -17,6 +19,7 @@ class CartView( mixins.RetrieveModelMixin, generics.GenericAPIView):
     """
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    lookup_field = 'pk'
     def get(self, request, *args, **kwargs):
         """
 
@@ -33,13 +36,15 @@ class CartView( mixins.RetrieveModelMixin, generics.GenericAPIView):
             return Response(serializer.data)
 
 
-class OrdersView( mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class OrdersView( mixins.ListModelMixin, mixins.CreateModelMixin,
+                  mixins.DestroyModelMixin, generics.GenericAPIView):
     """
     This view return the list of all orders by a user and also creates order for a user
     """
 
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsOrderOwner]
 
     def get(self, request, *args, **kwargs) -> Response:
         """
@@ -80,34 +85,52 @@ class OrdersView( mixins.ListModelMixin, mixins.CreateModelMixin, generics.Gener
         order_serializer = OrderSerializer(order_instance)
         return Response(order_serializer.data, status=status.HTTP_201_CREATED)
 
-    # def put(self, request, *args, **kwargs) -> Response:
-    #     user = self.request.user
-    #     id = kwargs.get('id')
-    #     order = get_object_or_404(Order, user=user, id=id)
-    #
-    #     if order is not None:
-    #         serializer = CreateOrderSerializer(data=self.request.data, many=True)
-    #
-    #         if serializer.is_valid(raise_exception=True):
-    #             products = serializer.validated_data
-    #             clear_products = order.products.clear()
-    #
-    #             for product in products:
-    #                 product_id = product.get('id')
-    #                 product_instance = Products.objects.get(id=product_id)
-    #                 product_quantity = product.get('quantity')
-    #
-    #                 product_order = ProductOder.objects.create(user=user,
-    #                                                            product=product_instance,
-    #                                                            quantity=product_quantity)
-    #                 product_order.save()
-    #                 order.products.add(product_order)
-    #
-    #         order_serializer = OrderSerializer(order)
-    #         return Response(order_serializer.data, status=status.HTTP_200_OK)
-    #
-    #     return Response({'message': 'order instance not found'},
-    #                     status=status.HTTP_404_NOT_FOUND)
+    def put(self, request, *args, **kwargs) -> Response:
+        # grab order details from request. r
+        user = self.request.user
+        order_id = kwargs.get('id')
+        print(order_id)
+        order = get_object_or_404(Order, user=user, id=int(order_id))
+        print(order)
+
+        # check if order exists in database
+        if order is not None:
+            serializer = CreateOrderSerializer(data=self.request.data, many=True)
+
+            # check if serialized data is accepted
+            if serializer.is_valid(raise_exception=True):
+                products = serializer.validated_data
+                # empty the order products
+                order.products.clear()
+
+                # add get all modified order products and add them
+                for product in products:
+                    product_id = product.get('id')
+
+                    product_instance = Products.objects.get(id=product_id)
+                    product_quantity = product.get('quantity')
+
+                    product_order = ProductOder.objects.create(user=user,
+                                                               product=product_instance,
+                                                               quantity=product_quantity)
+                    product_order.save()
+                    order.products.add(product_order)
+
+            order_serializer = OrderSerializer(order)
+            return Response(order_serializer.data, status=status.HTTP_200_OK)
+
+        return Response({'message': 'order instance not found'},
+                        status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, *args, **kwargs) -> Response:
+
+        order_id = kwargs.get('id')
+        user = self.request.user
+        order = get_object_or_404(Order, user=user, id=int(order_id))
+        order.delete()
+
+        return Response({'message': 'order deleted'},
+                        status=status.HTTP_204_NO_CONTENT)
 
     def get_queryset(self) -> queryset:
         """
