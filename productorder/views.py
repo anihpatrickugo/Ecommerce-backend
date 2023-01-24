@@ -20,6 +20,7 @@ class CartView( mixins.RetrieveModelMixin, generics.GenericAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     lookup_field = 'pk'
+
     def get(self, request, *args, **kwargs):
         """
 
@@ -36,8 +37,9 @@ class CartView( mixins.RetrieveModelMixin, generics.GenericAPIView):
             return Response(serializer.data)
 
 
-class OrdersView( mixins.ListModelMixin, mixins.CreateModelMixin,
-                  mixins.DestroyModelMixin, generics.GenericAPIView):
+class OrdersView(mixins.ListModelMixin, mixins.RetrieveModelMixin,
+                 mixins.CreateModelMixin, mixins.DestroyModelMixin,
+                 generics.GenericAPIView):
     """
     This view return the list of all orders by a user and also creates order for a user
     """
@@ -45,6 +47,7 @@ class OrdersView( mixins.ListModelMixin, mixins.CreateModelMixin,
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsOrderOwner]
+    lookup_field = 'id'
 
     def get(self, request, *args, **kwargs) -> Response:
         """
@@ -54,6 +57,9 @@ class OrdersView( mixins.ListModelMixin, mixins.CreateModelMixin,
         :param kwargs:
         :return: response with the list of orders.
         """
+        order_id = kwargs.get('id')
+        if order_id:
+            return self.retrieve(request, *args, **kwargs)
         return self.list(request)
 
     def post(self, request, *args, **kwargs) -> Response:
@@ -89,9 +95,7 @@ class OrdersView( mixins.ListModelMixin, mixins.CreateModelMixin,
         # grab order details from request. r
         user = self.request.user
         order_id = kwargs.get('id')
-        print(order_id)
         order = get_object_or_404(Order, user=user, id=int(order_id))
-        print(order)
 
         # check if order exists in database
         if order is not None:
@@ -100,8 +104,12 @@ class OrdersView( mixins.ListModelMixin, mixins.CreateModelMixin,
             # check if serialized data is accepted
             if serializer.is_valid(raise_exception=True):
                 products = serializer.validated_data
-                # empty the order products
-                order.products.clear()
+
+                # empty the previous order products
+                for product in order.products.all():
+                    id = product.id
+                    product = ProductOder.objects.get(id=id)
+                    product.delete()
 
                 # add get all modified order products and add them
                 for product in products:

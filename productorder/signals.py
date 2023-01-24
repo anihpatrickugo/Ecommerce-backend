@@ -6,7 +6,7 @@ from .custom import generate_random_reference
 
 
 @receiver(pre_save, sender=Order)
-def create_or_edit_order(sender, instance, **kwargs):
+def create_order(sender, instance, **kwargs):
 
     # check if order is being created for the first
     # time
@@ -15,13 +15,18 @@ def create_or_edit_order(sender, instance, **kwargs):
         instance.reference = generate_random_reference()
         return instance
 
-    else:
 
-        # then this is definitely an update
-        # delete the initial products in the data base
-        initial_products = instance.products.all()
-        for product in initial_products:
-            product.delete()
+# @receiver(pre_save, sender=Order)
+# def update_order(sender, instance, **kwargs):
+#
+#     # check if order is being created for the first
+#     # time
+#     # if instance.pk is not None:
+#     print(instance.pk, 'this is pk')
+#         # create a reference token for the order.
+#         # previous_products = instance.products.all()
+#         # print(previous_products, 'these are the previous products')
+
 
 @receiver(pre_delete, sender=Order)
 def delete_order_products(sender, instance, **kwargs):

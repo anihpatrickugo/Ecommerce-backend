@@ -1,5 +1,6 @@
 from rest_framework import generics
-from rest_framework import mixins
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
 
 from .models import Products, Categories
 from .serializers import ProductSerializer, CategoriesSerializer
@@ -15,6 +16,7 @@ class ProductView(mixins.GetMethodListOrDetail, generics.GenericAPIView):
 
     queryset = Products.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
     paginate_by = 1
 
 
@@ -22,3 +24,4 @@ class CategoryView(mixins.GetMethodListOrDetail, generics.GenericAPIView):
 
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]

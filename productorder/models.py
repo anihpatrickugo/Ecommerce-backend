@@ -26,3 +26,4 @@ class Order(models.Model):
     reference = models.CharField(max_length=12, blank=True, unique=True)
     checked = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now_add=True)
+

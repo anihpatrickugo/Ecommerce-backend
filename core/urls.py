@@ -17,11 +17,29 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
+from rest_framework_simplejwt.views import (
+     TokenObtainPairView,
+     TokenRefreshView)
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", include('userapp.urls')),
     path("", include('products.urls')),
     path("", include('productorder.urls')),
+
+
+    # Authentication urls
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+
+    # social auth
+    # path('dj-rest-auth/', include('dj_rest_auth.urls')),
+    # path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
+    # path('account/', include('alluth.urls')),
+
+
 ]
 
 
