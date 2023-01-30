@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     #third party packages
     "rest_framework",
     # "rest_framework_simplejwt",
+    "django_countries",
+    "phonenumber_field",
 
 
 ]
@@ -162,3 +164,35 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Logging
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{name} {levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        }
+    },
+    'handlers': {
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'Logs/general.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'level': 'INFO',
+            'handlers': ['file'],
+        },
+        'django.request': {
+            'level': 'INFO',
+            'handlers': ['file'],
+        },
+    }
+}
+

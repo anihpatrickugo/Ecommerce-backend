@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth import get_user_model
 
 from rest_framework import generics
@@ -9,6 +11,7 @@ from  rest_framework.permissions import AllowAny
 
 from .serializers import UserSerializer
 
+logger = logging.getLogger('django.request')
 User = get_user_model()
 
 
@@ -28,6 +31,8 @@ class UserView(mixins.UpdateModelMixin, mixins.DestroyModelMixin,
     def get(self, request, *args, **kwargs):
         user = self.get_object(request)
         serializer = UserSerializer(user)
+
+        logger.info('returned a current request user')
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
@@ -36,6 +41,8 @@ class UserView(mixins.UpdateModelMixin, mixins.DestroyModelMixin,
 
         if serializer.is_valid(raise_exception=True):
             serializer.save()
+
+            logger.info('created a new request user')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, *args, **kwargs):
@@ -46,12 +53,15 @@ class UserView(mixins.UpdateModelMixin, mixins.DestroyModelMixin,
         if serializer.is_valid(raise_exception=True):
             validated_data = serializer.validated_data
             serializer.update(instance, validated_data)
-            return Response({'message': 'user updated'}, status=status.HTTP_201_CREATED)
 
+            logger.info('modified an existing request user')
+            return Response({'message': 'user updated'}, status=status.HTTP_201_CREATED)
 
     def delete(self, request, *args, **kwargs):
         user = self.get_object(request, *args, **kwargs)
         user.delete()
+
+        logger.info('deleted a request user')
         return Response({'message': 'user successfully deleted'},
                         status=status.HTTP_204_NO_CONTENT)
 

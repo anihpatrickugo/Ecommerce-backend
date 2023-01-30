@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from .models import Order, ProductOder
+from .models import Order, Address, ProductOder
 from products.serializers import ProductSerializer
 
 
@@ -41,10 +41,14 @@ class ProductOrderSerializer(serializers.ModelSerializer):
         }
 
 
-
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = '__all__'
 
 class OrderSerializer(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
+    address = AddressSerializer(required=False, allow_null=True)
     class Meta:
         model = Order
         fields =  [
@@ -53,7 +57,8 @@ class OrderSerializer(serializers.ModelSerializer):
             'checked',
             'date',
             'user',
-            'products'
+            'products',
+            'address',
         ]
         extra_kwargs = {
             # 'id': {'read_only': True},
@@ -71,3 +76,5 @@ class CreateOrderSerializer(serializers.Serializer):
 
     id = serializers.IntegerField(required=True)
     quantity = serializers.IntegerField(default=1)
+
+

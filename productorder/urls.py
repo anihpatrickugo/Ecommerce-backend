@@ -10,5 +10,8 @@ urlpatterns = [
     path('orders/<int:id>/', views.OrdersView.as_view()),
     path('orders/', views.OrdersView.as_view(), name='orders' ),
 
+    # checkout
+    path('checkout/<int:id>/', views.CheckoutView.as_view(), name='checkout')
+
 
     ]
