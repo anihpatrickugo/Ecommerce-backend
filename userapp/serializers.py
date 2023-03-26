@@ -18,3 +18,13 @@ class UserSerializer(serializers.ModelSerializer):
             'email',
             'password'
         ]
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User.objects.create(**validated_data)
+        user.set(password)
+        user.save()
+        return user
+
+
+

@@ -11,7 +11,9 @@ urlpatterns = [
     path('orders/', views.OrdersView.as_view(), name='orders' ),
 
     # checkout
-    path('checkout/<int:id>/', views.CheckoutView.as_view(), name='checkout')
+    path('checkout/<int:id>/', views.CheckoutView.as_view(), name='checkout'),
+    path('create-checkout-session', views.PaymentView.as_view(),
+         name='payment')
 
 
     ]

@@ -20,14 +20,13 @@ class UserView(mixins.UpdateModelMixin, mixins.DestroyModelMixin,
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    # lookup_field = 'id'
-    #
+    permission_classes = [AllowAny]
     def get_object(self, request):
         user_id = self.request.user.id
         user = User.objects.get(id=user_id)
         return user
 
-    @permission_classes([AllowAny])
+
     def get(self, request, *args, **kwargs):
         user = self.get_object(request)
         serializer = UserSerializer(user)
@@ -40,7 +39,12 @@ class UserView(mixins.UpdateModelMixin, mixins.DestroyModelMixin,
         serializer = UserSerializer(data=data)
 
         if serializer.is_valid(raise_exception=True):
-            serializer.save()
+            data = serializer.validated_data
+
+            password = data.pop('password')
+            user = User.objects.create(**data)
+            user.set_password(password)
+            user.save()
 
             logger.info('created a new request user')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -64,4 +68,5 @@ class UserView(mixins.UpdateModelMixin, mixins.DestroyModelMixin,
         logger.info('deleted a request user')
         return Response({'message': 'user successfully deleted'},
                         status=status.HTTP_204_NO_CONTENT)
+
 

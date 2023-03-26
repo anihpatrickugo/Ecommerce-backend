@@ -1,18 +1,29 @@
+import os
 import logging
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
+User = get_user_model()
+
 from rest_framework import generics
 from rest_framework import views
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework.response import  Response
 
+import stripe
+
 from products.models import Products
 
-from. models import Order, ProductOder
+from .custom import generate_random_reference
+from .models import Order, ProductOder, OrderCoupon, Payment
 from .permissions import IsOrderOwner
 from .serializers import OrderSerializer, AddressSerializer, CreateOrderSerializer
 
 logger = logging.getLogger('django.request')
+stripe.api_key = settings.STRIPE_SECRET_KEY
+YOUR_DOMAIN = 'http://localhost:4242'
 # Create your views here.
 
 
@@ -78,11 +89,12 @@ class OrdersView(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         :return: response with the order instance created.
         """
         user = self.request.user
-        serializer = CreateOrderSerializer(data=self.request.data, many=True)
+        serializer = CreateOrderSerializer(data=self.request.data)
         order_instance = Order.objects.create(user=user)
 
         if serializer.is_valid(raise_exception=True):
-            products = serializer.validated_data
+            products = serializer.validated_data.get('products')
+            coupon = serializer.validated_data.get('coupon')
 
             for product in products:
                 product_id = product.get('id')
@@ -92,8 +104,19 @@ class OrdersView(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                 product_order = ProductOder.objects.create(user=user,
                                                            product=product_instance,
                                                            quantity=product_quantity)
+
                 product_order.save()
                 order_instance.products.add(product_order)
+
+        # #check if there is coupon and it exists
+        if coupon != "":
+            try:
+                coupon_instance = OrderCoupon.objects.get(name=coupon)
+                order_instance.coupon = coupon_instance
+                order_instance.save()
+
+            except ObjectDoesNotExist:
+                return Response({'coupon': 'Coupon does not exists'}, status=status.HTTP_404_NOT_FOUND)
 
         order_serializer = OrderSerializer(order_instance)
         logger.info('new order created')
@@ -180,8 +203,10 @@ class CheckoutView(views.APIView):
             order.address = address
             order.save()
 
+
+
             logger.info('address info added to order')
-            return Response({'message': 'address added successfully'},
+            return Response({'id': order_id},
                             status=status.HTTP_201_CREATED)
 
     def put(self, request, *args, **kwargs):
@@ -201,3 +226,79 @@ class CheckoutView(views.APIView):
             logger.info('order address info is modified')
             return Response({'message': 'address updated successfully'},
                             status=status.HTTP_201_CREATED)
+
+class PaymentView(views.APIView):
+
+    """
+    This handles the paymet of the order with stripe
+    """
+
+
+    def get(self, request, *args, **kwargs):
+
+        id = self.request.GET['cartid']
+        order = get_object_or_404(Order, id=int(id))
+
+
+
+
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                line_items=[
+                    {
+                        # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                        'price_data': {
+                            'currency': 'ngn',
+                            'product_data': {'name': f'{order.user.username} order'},
+                            'unit_amount': (order.amount * 100), # converting from kobo to naira
+                            'tax_behavior': 'exclusive',
+                        },
+                        'quantity': 1,
+                    },
+                ],
+                mode='payment',
+                success_url=settings.FRONTEND_URL + '?success=true',
+                cancel_url=settings.FRONTEND_URL + '?canceled=true',
+            )
+
+            # # create the payment models
+            payment = Payment()
+            payment.type = "stripe"
+            payment.user = order.user
+            payment.amount = order.amount
+            payment.reference = generate_random_reference()
+            payment.save()
+
+            # assign payment to the order
+            order.payment = payment
+            order.save()
+
+            return redirect(checkout_session.url)
+
+        except Exception as e:
+            print(str(e))
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+            # # create the payment models
+            # payment = Payment()
+            # payment.type = "stripe"
+            # payment.user = user_instance
+            # payment.amount = order.amount
+            # payment.reference = charge['id']
+            # payment.save()
+            #
+            # # assign payment to the order
+            # order.payment = payment
+            # order.save()
+            # return Response('stripe payment done')
+
+
+
+
+
+
+
+
+

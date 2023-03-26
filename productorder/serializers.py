@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from .models import Order, Address, ProductOder
+from .models import Order, Address, ProductOder, Payment
 from products.serializers import ProductSerializer
 
 
@@ -46,19 +46,27 @@ class AddressSerializer(serializers.ModelSerializer):
         model = Address
         fields = '__all__'
 
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = ['type', 'timestamp']
+
 class OrderSerializer(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
     address = AddressSerializer(required=False, allow_null=True)
+    payment = PaymentSerializer(required=False, allow_null=True)
     class Meta:
         model = Order
-        fields =  [
+        fields = [
             'id',
             'reference',
             'checked',
             'date',
             'user',
             'products',
+            'amount',
             'address',
+            'payment'
         ]
         extra_kwargs = {
             # 'id': {'read_only': True},
@@ -68,13 +76,18 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_products(self, obj):
 
-        serializers = ProductOrderSerializer(obj.products, many=True)
-        return serializers.data
+        serializer_products = ProductOrderSerializer(obj.products, many=True)
+        return serializer_products.data
+
+
+class ProductOrderItemSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=True)
+    quantity = serializers.IntegerField(default=1)
 
 
 class CreateOrderSerializer(serializers.Serializer):
+    products = ProductOrderItemSerializer(many=True)
+    coupon = serializers.CharField(max_length=20, required=False, allow_blank=True)
 
-    id = serializers.IntegerField(required=True)
-    quantity = serializers.IntegerField(default=1)
 
 

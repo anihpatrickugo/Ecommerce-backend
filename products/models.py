@@ -15,7 +15,8 @@ class Products(models.Model):
     initial_price = models.IntegerField()
     description = models.TextField()
     categories = models.ManyToManyField(Categories)
-    discount = models.DecimalField(decimal_places=2, max_digits=100, blank=True, null=True)
+    discount = models.IntegerField(blank=True, null=True)
+    date_added = models.DateField(auto_now_add=True)
 
 
     def __str__(self):
@@ -27,5 +28,5 @@ class Products(models.Model):
             discounted = ( self.discount /100) * self.initial_price
             new_price = self.initial_price - discounted
             return new_price
-        return  self.initial_price
+        return self.initial_price
 

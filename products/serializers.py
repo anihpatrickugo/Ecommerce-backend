@@ -6,14 +6,16 @@ from .models import Products, Categories
 class CategoriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categories
-        fields = ['pk', 'name']
+        fields = ['id', 'name']
+
+
 
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer):
+    categories = CategoriesSerializer(many=True)
 
     class Meta:
-        # categories = CategoriesSerializer(read_only=True)
 
         model = Products
         fields = [
@@ -27,5 +29,6 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer):
             'categories',
             'discount'
         ]
+
 
 

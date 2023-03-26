@@ -5,4 +5,3 @@ def generate_random_reference():
     return random_str
 
 
-generate_random_reference()
