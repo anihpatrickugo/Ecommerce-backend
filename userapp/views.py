@@ -26,8 +26,10 @@ class UserView(mixins.UpdateModelMixin, mixins.DestroyModelMixin,
         user = User.objects.get(id=user_id)
         return user
 
-
     def get(self, request, *args, **kwargs):
+        """
+        This return the current authenticated user
+        """
         user = self.get_object(request)
         serializer = UserSerializer(user)
 
@@ -35,6 +37,9 @@ class UserView(mixins.UpdateModelMixin, mixins.DestroyModelMixin,
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
+        """
+        This creates a new user with an email, username and passord.
+        """
         data = self.request.data
         serializer = UserSerializer(data=data)
 
@@ -50,6 +55,9 @@ class UserView(mixins.UpdateModelMixin, mixins.DestroyModelMixin,
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, *args, **kwargs):
+        """
+        This is used for updating an authenticated user.
+        """
         instance = self.get_object(request)
         data = self.request.data
         serializer = UserSerializer(data=data)
@@ -62,6 +70,10 @@ class UserView(mixins.UpdateModelMixin, mixins.DestroyModelMixin,
             return Response({'message': 'user updated'}, status=status.HTTP_201_CREATED)
 
     def delete(self, request, *args, **kwargs):
+        """
+        This is used for deleting an authenticated user
+        account.
+        """
         user = self.get_object(request, *args, **kwargs)
         user.delete()
 

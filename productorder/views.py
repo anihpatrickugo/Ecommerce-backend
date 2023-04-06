@@ -28,21 +28,16 @@ YOUR_DOMAIN = 'http://localhost:4242'
 
 
 class CartView( mixins.RetrieveModelMixin, generics.GenericAPIView):
-    """
-    This view bring the current cart which has not been checked.
-    """
+
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     lookup_field = 'pk'
 
     def get(self, request, *args, **kwargs):
         """
-
-        :param request:
-        :param args:
-        :param kwargs:
-        :return: the cart currently been used
+        This returns the current cart which has not been checked.
         """
+
         user = self.request.user
         order = Order.objects.filter(user=user, checked=False)
         if order.exists():
@@ -55,9 +50,6 @@ class CartView( mixins.RetrieveModelMixin, generics.GenericAPIView):
 class OrdersView(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                  mixins.CreateModelMixin, mixins.DestroyModelMixin,
                  generics.GenericAPIView):
-    """
-    This view return the list of all orders by a user and also creates order for a user
-    """
 
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -66,11 +58,9 @@ class OrdersView(mixins.ListModelMixin, mixins.RetrieveModelMixin,
 
     def get(self, request, *args, **kwargs) -> Response:
         """
-
-        :param request:
-        :param args:
-        :param kwargs:
-        :return: response with the list of orders.
+           This view return the list of all orders by a user
+           if there is no user id, but returns a single order instance
+           if the order id is passed as a url parameter.
         """
         order_id = kwargs.get('id')
         if order_id:
@@ -82,11 +72,12 @@ class OrdersView(mixins.ListModelMixin, mixins.RetrieveModelMixin,
 
     def post(self, request, *args, **kwargs) -> Response:
         """
-
-        :param request:
-        :param args:
-        :param kwargs:
-        :return: response with the order instance created.
+        This handles the creation of a new order provided
+        that the order parameters is passed properly as an
+        contains a list and an optional promo code.
+        The list contains objects which has a product id and
+        a quantity to be ordered for. This finally returns the
+        created order.
         """
         user = self.request.user
         serializer = CreateOrderSerializer(data=self.request.data)
@@ -123,6 +114,9 @@ class OrdersView(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         return Response(order_serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, *args, **kwargs) -> Response:
+        """
+        This is basically used to update the orders.
+        """
         # grab order details from request. r
         user = self.request.user
         order_id = kwargs.get('id')
@@ -134,7 +128,7 @@ class OrdersView(mixins.ListModelMixin, mixins.RetrieveModelMixin,
 
             # check if serialized data is accepted
             if serializer.is_valid(raise_exception=True):
-                products = serializer.validated_data
+                products = serializer.validated_data.get('products')
 
                 # empty the previous order products
                 for product in order.products.all():
@@ -164,6 +158,10 @@ class OrdersView(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                         status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, *args, **kwargs) -> Response:
+        """
+        This is used to delete an order by the authenticated
+        user.
+        """
 
         order_id = kwargs.get('id')
         user = self.request.user
@@ -257,8 +255,8 @@ class PaymentView(views.APIView):
                     },
                 ],
                 mode='payment',
-                success_url=settings.FRONTEND_URL + '?success=true',
-                cancel_url=settings.FRONTEND_URL + '?canceled=true',
+                success_url=settings.FRONTEND_URL + 'payment-success/',
+                cancel_url=settings.FRONTEND_URL + 'payment-failure/',
             )
 
             # # create the payment models
@@ -281,18 +279,6 @@ class PaymentView(views.APIView):
 
 
 
-            # # create the payment models
-            # payment = Payment()
-            # payment.type = "stripe"
-            # payment.user = user_instance
-            # payment.amount = order.amount
-            # payment.reference = charge['id']
-            # payment.save()
-            #
-            # # assign payment to the order
-            # order.payment = payment
-            # order.save()
-            # return Response('stripe payment done')
 
 
 

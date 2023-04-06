@@ -14,7 +14,7 @@ logger = logging.getLogger('django.request')
 
 class ProductView(mixins.GetMethodListOrDetail, generics.GenericAPIView):
     """
-    This is the view which list all available products and also
+    This list all available products and also
     enable the viewing of each product in detail
     """
 
@@ -39,6 +39,9 @@ class ProductView(mixins.GetMethodListOrDetail, generics.GenericAPIView):
 
 
 class CategoryView(mixins.GetMethodListOrDetail, generics.GenericAPIView):
+    """
+    This returns all available list of products categories
+    """
 
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
