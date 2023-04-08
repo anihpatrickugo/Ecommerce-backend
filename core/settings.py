@@ -133,15 +133,22 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Email settings
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
-EMAIL_SENDER = env('EMAIL_SENDER')
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "iampatrickugo@gmail.com"
+EMAIL_HOST_PASSWORD = "yfpstrzrnkbyvxgd"
 
-ANYMAIL = {
-    "MAILJET_API_KEY": "d39cc2ecbab875ae2681df11b925fd58",
-    "MAILJET_SECRET_KEY": "0bb20f3dc5156d6c1a79d80105072bbd9",
-
-}
+# # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
+# EMAIL_SENDER = env('EMAIL_SENDER')
+#
+# ANYMAIL = {
+#     "MAILJET_API_KEY": "d39cc2ecbab875ae2681df11b925fd58",
+#     "MAILJET_SECRET_KEY": "0bb20f3dc5156d6c1a79d80105072bbd9",
+#
+# }
 
 
 #Authentication settings
