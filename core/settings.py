@@ -224,7 +224,7 @@ LOGGING = {
     'handlers': {
         'file': {
             'class': 'logging.FileHandler',
-            'filename': 'Logs/general.log',
+            'filename': 'general.log',
             'formatter': 'verbose',
         },
     },
