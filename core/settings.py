@@ -239,4 +239,4 @@ LOGGING = {
     }
 }
 
-FRONTEND_URL = 'http://localhost:3000/'
+FRONTEND_URL = 'https://localhost:3000/'

@@ -289,9 +289,13 @@ class PaymentView(views.APIView):
             from_email = settings.EMAIL_HOST_USER
             recipient_list = [order.user.email]
 
-            msg = EmailMultiAlternatives(subject, text_content, from_email, recipient_list)
+            msg = EmailMultiAlternatives(subject,
+                                         text_content,
+                                         from_email,
+                                         recipient_list)
+
             msg.attach_alternative(html_content, "text/html")
-            msg.send()
+            msg.send(fail_silently=True)
 
 
 
