@@ -138,8 +138,8 @@ EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 EMAIL_SENDER = env('EMAIL_SENDER')
 
 ANYMAIL = {
-    "MAILJET_API_KEY": env("MAILJET_API_KEY"),
-    "MAILJET_SECRET_KEY": env("MAILJET_SECRET_KEY"),
+    "MAILJET_API_KEY": "d39cc2ecbab875ae2681df11b925fd58",
+    "MAILJET_SECRET_KEY": "0bb20f3dc5156d6c1a79d80105072bbd9",
 
 }
 
