@@ -15,6 +15,7 @@ from datetime import  timedelta
 import environ
 import os
 
+
 env = environ.Env(
     DEBUG=(bool, True)
 )
@@ -30,12 +31,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = "django-insecure--elsr=mry%y6-o^f7dq7$mh!pf43+=8sf%++hxx0(kbsy22w-j"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -62,6 +63,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_countries",
     "phonenumber_field",
+    "anymail",
 
 
 ]
@@ -103,10 +105,19 @@ WSGI_APPLICATION = "core.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "HOST": "db.tzyipodefirqpijbglkf.supabase.co",
+        "NAME": env('DATABASE_NAME'),
+        "USER": env("DATABASE_USER"),
+        "PASSWORD": env("DATABASE_PASSWORD"),
+        "PORT": "5432"
     }
 }
+
+
+
+
+
 
 
 # Password validation
@@ -122,8 +133,15 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 EMAIL_SENDER = env('EMAIL_SENDER')
+
+ANYMAIL = {
+    "MAILJET_API_KEY": env("MAILJET_API_KEY"),
+    "MAILJET_SECRET_KEY": env("MAILJET_SECRET_KEY"),
+
+}
 
 
 #Authentication settings

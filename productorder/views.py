@@ -1,6 +1,9 @@
-import os
+
 import logging
 from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
@@ -248,7 +251,7 @@ class PaymentView(views.APIView):
                         'price_data': {
                             'currency': 'ngn',
                             'product_data': {'name': f'{order.user.username} order'},
-                            'unit_amount': (order.amount * 100), # converting from kobo to naira
+                            'unit_amount': int(order.amount * 100), # converting from kobo to naira
                             'tax_behavior': 'exclusive',
                         },
                         'quantity': 1,
@@ -270,6 +273,27 @@ class PaymentView(views.APIView):
             # assign payment to the order
             order.payment = payment
             order.save()
+
+            # send email
+            subject = "Order Payment confirmation"
+            context = {
+                'username': order.user.username,
+                'amount': order.amount,
+                "order_reference": order.reference,
+                "address": order.address,
+                "payment_type": payment.type,
+            }
+
+            html_content = render_to_string('emails/order_payment.html', context=context)
+            text_content = strip_tags(html_content)
+            from_email = settings.EMAIL_SENDER
+            recipient_list = [order.user.email]
+
+            msg = EmailMultiAlternatives(subject, text_content, from_email, recipient_list)
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+
+
 
             return redirect(checkout_session.url)
 

@@ -37,14 +37,14 @@ class Payment(models.Model):
         ('stripe', 'STRIPE'),
         ('paypal', 'PAYPAL')
     )
-    reference = models.CharField(max_length=100)
+    reference = models.CharField(max_length=80)
     type = models.CharField(max_length=20, choices=payment_choices)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     amount = models.FloatField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.user.username
+    # def __str__(self):
+    #     return self.user.username
 
 class OrderCoupon(models.Model):
     name = models.CharField(max_length=20, unique=True)
