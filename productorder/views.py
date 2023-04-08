@@ -286,7 +286,7 @@ class PaymentView(views.APIView):
 
             html_content = render_to_string('emails/order_payment.html', context=context)
             text_content = strip_tags(html_content)
-            from_email = settings.EMAIL_SENDER
+            from_email = settings.EMAIL_HOST_USER
             recipient_list = [order.user.email]
 
             msg = EmailMultiAlternatives(subject, text_content, from_email, recipient_list)
