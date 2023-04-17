@@ -1,4 +1,5 @@
 from django.db import models
+from cloudinary.models import CloudinaryField
 
 # Create your models here.
 
@@ -10,8 +11,8 @@ class Categories(models.Model):
 
 
 class Products(models.Model):
-    image = models.ImageField(upload_to='products')
-    name  = models.CharField(max_length=40)
+    image = CloudinaryField('products')
+    name = models.CharField(max_length=40)
     initial_price = models.IntegerField()
     description = models.TextField()
     categories = models.ManyToManyField(Categories)

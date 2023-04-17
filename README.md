@@ -1,7 +1,8 @@
 # SHOPGRIDS BACKEND API
 
 Shopgrids is an ecommerce site for buying gadgets 
-and electronics.
+and electronics. Here is the link to the 
+[API Docs](https://shopgrids.onrender.com/docs/)
 
 ## Installation
 

@@ -11,9 +11,14 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-from datetime import  timedelta
-import environ
+from datetime import timedelta
 import os
+import environ
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+
 
 
 env = environ.Env(
@@ -64,6 +69,7 @@ INSTALLED_APPS = [
     "django_countries",
     "phonenumber_field",
     "anymail",
+    "cloudinary",
 
 
 ]
@@ -238,5 +244,11 @@ LOGGING = {
         },
     }
 }
+#cloudinary integration
 
+cloudinary.config(
+    cloud_name=env('CLOUDINARY_NAME'),
+    api_key=env('CLOUDINARY_API_KEY'),
+    api_secret=env('CLOUDINARY_API_SECRET'),
+)
 FRONTEND_URL = 'https://shopgrids.vercel.app/'
